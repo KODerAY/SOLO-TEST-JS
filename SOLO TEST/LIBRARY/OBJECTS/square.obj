@@ -1,0 +1,36 @@
+//console.log("square LOADED");
+gameInitialization.prototype.entitySquare = class extends gameInitialization.prototype.entity{
+	constructor(x, y, size, color, board){
+		super();
+		this.defaultParameters();
+		this.setParameters(x, y, size, color);
+		this.constantParameters();
+	}
+	
+	copyThis(that){
+		super.copyThis(that);
+		this.setParameters(that.x, that.y, that.size, that.color, that.type, that.depth);
+	}
+	
+	defaultParameters(){
+		var d = gameInitialization.squareDefaultValues;
+		this.setParameters(d.x, d.y, d.size, d.color, d.type, d.depth);
+	}
+	
+	setParameters(x, y, size, color, type, depth){
+		super.setParameters(x, y, size, size, color, type, depth);
+	}
+	
+	mouseMove(e){
+		var mouse = game.getMouse(e);
+		if(gameBasicAlgorithm.collisionMouse(mouse, this)){
+			this.color = gameInitialization.squareDefaultValues.colorOn;
+		}else{
+			this.color = gameInitialization.squareDefaultValues.color;
+		}
+	}
+	mouseOut(){
+		this.color = gameInitialization.squareDefaultValues.color;
+	}
+}
+//console.log("square ENDED");

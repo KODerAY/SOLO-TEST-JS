@@ -1,0 +1,87 @@
+//console.log("entity LOADED");
+gameInitialization.prototype.entity = class{
+	constructor(x, y, width, height, color, type){
+		this.defaultParameters();
+		this.setParameters(x, y, width, height, color, type);
+		this.constantParameters();
+		gameInitialization.gameObjects.push(this);
+	}
+	
+	copyThis(that){
+		this.setParameters(that.x, that.y, that.width, that.height, that.color, that.type, 
+		that.depth, that.speedX, that.speedY, that.maxSpeed, that.gravity);
+	}
+	
+	defaultParameters(){
+		this.setParameters(0, 0, 32, 32, game.gameConst.Colors.BLACK.hex, game.gameConst.Types.RECTANGLE.name, 0, 0, 0, 5, 1);
+	}
+	
+	setParameters(x, y, width, height, color, type, depth, speedX, speedY, maxSpeed, gravity){
+		if(x != null){this.x = x;}
+		if(y != null){this.y = y;}
+		if(width != null){this.width = width;}
+		if(height != null){this.height = height;}
+		if(color != null){this.color = color;}
+		if(type != null){this.type = type;}
+		if(depth != null){this.depth = depth;}
+		if(speedX != null){this.speedX = speedX;}
+		if(speedY != null){this.speedY = speedY;}
+		if(maxSpeed != null){this.maxSpeed = maxSpeed;}
+		if(gravity != null){this.gravity = gravity;}
+	}
+	
+	constantParameters(){
+	}
+	
+	draw() {
+		var g = gameInitialization;
+		var ctx = g.context;
+		ctx.fillStyle = this.color;
+		ctx.strokeStyle = this.color;
+		if(this.type == g.gameConst.Types.TEXT.name){
+			ctx.font = this.width + " " + this.height;
+			ctx.fillText(this.text, this.x, this.y);
+		}else if(this.type == g.gameConst.Types.RECTANGLE.name){
+			ctx.fillRect(this.x, this.y, this.width, this.height);
+		}else if(this.type == g.gameConst.Types.SQUARE.name){
+			ctx.fillRect(this.x, this.y, this.width, this.height);
+		}else if(this.type == g.gameConst.Types.CIRCLE.name){
+			ctx.beginPath();
+			ctx.arc(this.x, this.y, this.size / 2, 0, 2 * Math.PI);
+			//ctx.stroke();
+			ctx.fill();
+		}
+	}
+	
+	update() {
+		//this.speedY += this.gravity;
+		this.x += this.speedX;
+		this.y += this.speedY;
+		this.boundary();
+	}
+	
+	boundary(){
+		if(this.x < 0){
+			this.x = 0;
+		}
+		if(this.x > gameInitialization.gameWidth - this.width){
+			this.x = gameInitialization.gameWidth - this.width;
+		}
+		if(this.y < 0){
+			this.y = 0;
+		}
+		if(this.y > gameInitialization.gameHeight - this.height){
+			this.y = gameInitialization.gameHeight - this.height;
+		}
+	}//**gameInitialization.entity.boundary**
+	
+	crashWith(){
+	}//**gameInitialization.entity.crashWith**
+	
+	keyDown(e){}
+	mouseClick(e){}
+	mouseMove(e){}
+	mouseOut(){}
+	
+};//**gameInitialization.entity**
+//console.log("entity ENDED");

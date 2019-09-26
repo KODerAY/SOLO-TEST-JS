@@ -1,0 +1,45 @@
+//console.log("peg LOADED");
+gameInitialization.prototype.entityPeg = class extends gameInitialization.prototype.entity{
+	constructor(x, y, size, color){
+		super();
+		this.defaultParameters();
+		this.setParameters(x, y, size, color);
+		this.constantParameters();
+	}
+	
+	copyThis(that){
+		super.copyThis(that);
+		this.setParameters(that.x, that.y, that.size, that.color, that.type, that.depth);
+	}
+	
+	defaultParameters(){
+		var d = gameInitialization.pegDefaultValues;
+		this.setParameters(d.x, d.y, d.size, d.color, d.type, d.depth);
+	}
+	
+	setParameters(x, y, size, color, type, depth){
+		super.setParameters(x, y, size, size, color, type, depth);
+		if(size != null){
+			this.size = size;//for draw event
+		}
+	}
+	
+	constantParameters(){}
+	
+	mouseMove(e){
+		var mouse = game.getMouse(e);
+		if(gameBasicAlgorithm.collisionMouse(mouse, this)){
+			this.color = gameInitialization.pegDefaultValues.colorOn;
+		}else{
+			this.color = gameInitialization.pegDefaultValues.color;
+		}
+	}
+	mouseOut(){
+		this.color = gameInitialization.pegDefaultValues.color;
+	}
+	move(square){
+		this.x = square.x + square.width / 2;
+		this.y = square.y + square.height / 2;
+	}
+}
+//console.log("peg ENDED");

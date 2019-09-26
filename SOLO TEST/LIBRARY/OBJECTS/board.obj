@@ -1,0 +1,219 @@
+//console.log("board LOADED");
+gameInitialization.prototype.entityBoard = class extends gameInitialization.prototype.entity{
+	constructor(x, y, width, height, color){
+		super();
+		this.defaultParameters();
+		this.setParameters(x, y, width, height, color);
+		this.constantParameters();
+		
+		this.createSquare();
+		this.createPeg();
+	}
+	
+	copyThis(that){
+		super.copyThis(that);
+		this.setParameters(that.x, that.y, that.width, that.height, that.color, that.type, that.depth, that.notation, that.squares, that.pegs);
+	}
+	
+	defaultParameters(){
+		var d = gameInitialization.boardDefaultValues;
+		this.setParameters(d.x, d.y, d.width, d.height, d.color, d.type, d.depth, d.notation, d.squares, d.pegs);
+	}
+	
+	setParameters(x, y, width, height, color, type, depth, notation, squares, pegs){
+		super.setParameters(x, y, width, height, color, type, depth);
+		if(notation != null){this.notation = notation;}
+		if(squares != null){
+			this.squares = new dataTypes.map(7, 7);
+			this.squares.copyThis(squares);
+		}
+		if(pegs != null){
+			this.pegs = new dataTypes.map(7, 7);
+			this.pegs.copyThis(pegs);
+		}
+	}
+	
+	constantParameters(){
+	}
+	
+	
+	createSquare(){
+		var g = gameInitialization;
+		var yBoard = g.boardDefaultValues.squareMap;
+		var Esquare = g.squareDefaultValues;
+		for(var i = 0; i < yBoard.length; i++){
+			var xBoard = yBoard[i];
+			for(var j = 0; j < xBoard.length; j++){
+				if(xBoard[j] == 1){
+					var square = new g.prototype.entitySquare(j * Esquare.size + j, i * Esquare.size + i,Esquare.size, Esquare.color, this);
+					this.squares.map[i][j] = square;
+				}
+			}
+		}
+	}
+	
+	createPeg(){
+		var g = gameInitialization;
+		var yBoard = g.boardDefaultValues.pegMap;
+		var Esquare = g.squareDefaultValues;
+		var Epeg = g.pegDefaultValues;
+		for(var i = 0; i < yBoard.length; i++){
+			var xBoard = yBoard[i];
+			for(var j = 0; j < xBoard.length; j++){
+				if(xBoard[j] == 1){
+					var peg = new g.prototype.entityPeg(j * Esquare.size + j + Esquare.size / 2, i * Esquare.size + i + Esquare.size / 2);
+					this.pegs.map[i][j] = peg;
+				}
+			}
+		}
+	}
+	
+	isSquare(pos){
+		var array = this.squares.map;
+		if((pos.y >=0) && (pos.y < array.length)){
+			if((pos.x >=0) && (pos.x < array[pos.y].length)){
+				return array[pos.y][pos.x] != null;
+			}
+		}
+		return null;
+	}
+	
+	getSquare(pos){
+		var array = this.squares.map;
+		if((pos.y >=0) && (pos.y < array.length)){
+			if((pos.x >=0) && (pos.x < array[pos.y].length)){
+				return array[pos.y][pos.x];
+			}
+		}
+		return null;
+	}
+	
+	isPeg(pos){
+		var array = this.pegs.map;
+		if((pos.y >=0) && (pos.y < array.length)){
+			if((pos.x >=0) && (pos.x < array[pos.y].length)){
+				return array[pos.y][pos.x] != null;
+			}
+		}
+		return null;
+	}
+	
+	getPeg(pos){
+		var array = this.pegs.map;
+		if((pos.y >=0) && (pos.y < array.length)){
+			if((pos.x >=0) && (pos.x < array[pos.y].length)){
+				return array[pos.y][pos.x];
+			}
+		}
+		return null;
+	}
+	
+	setPeg(pos, peg){
+		var array = this.pegs.map;
+		if((pos.y >=0) && (pos.y < array.length)){
+			if((pos.x >=0) && (pos.x < array[pos.y].length)){
+				if(array[pos.y][pos.x] == null){
+					array[pos.y][pos.x] = peg;
+				}else{
+					console.log("board.setPeg(pos, peg) - This position isn't empty!! " + pos + "for " + peg);
+				}
+			}else{
+				console.log("board.setPeg(pos, peg) - 0 < " + pos.x + " < " + array[pos.y].length + " false!");
+			}
+		}else{
+			console.log("board.setPeg(pos, peg) - 0 < " + pos.y + " < " + array.length + " false!");
+		}
+		return null;
+	}
+	
+	drawAll(){
+		this.draw();
+		var array = this.squares.map;
+		for(var i = 0; i < array.length; i++){
+			for(var j = 0; j < array[i].length; j++){
+				if(array[i][j] != null){
+					array[i][j].draw();
+				}
+			}
+		}
+		array = this.pegs.map;
+		for(var i = 0; i < array.length; i++){
+			for(var j = 0; j < array[i].length; j++){
+				if(array[i][j] != null){
+					array[i][j].draw();
+				}
+			}
+		}
+	}
+	
+	playMove(move){
+		var distance = gameBasicAlgorithm.getDistance(move.pos1.x, move.pos1.y, move.pos2.x, move.pos2.y);
+		if(distance == 2){
+			if(this.isSquare(move.pos1)){
+				if(this.isPeg(move.pos1)){
+					var peg = this.getPeg(move.pos1);
+					if(this.isSquare(move.pos2)){
+						if(!this.isPeg(move.pos2)){
+							this.pegs.map[move.pos1.y][move.pos1.x] = null;
+							peg.move(this.getSquare(move.pos2));
+							this.pegs.map[move.pos2.y][move.pos2.x] = peg;
+							var delPos = new dataTypes.position(move.pos1.x + (move.pos2.x - move.pos1.x) / 2,
+							move.pos1.y + (move.pos2.y - move.pos1.y) / 2);
+							game.deleteObject(this.getPeg(delPos));
+							this.pegs.map[delPos.y][delPos.x] = null;
+						}
+					}
+				}
+			}
+		}else{
+			console.log("Geçersiz hamle - " + move.pos1 + " / " + move.pos2 + " - " + "Uzaklık = " + distance);
+		}
+	}
+	
+	playableMoves(){
+		var dT = dataTypes;
+		var moves = [];
+		for(var i = 0; i < this.squares.map.length; i++){
+			for(var j = 0; j < this.squares.map[i].length; j++){
+				var pos = new dT.position(j, i);
+				var pos1 = new dT.position(j + 1, i);//right
+				var pos2 = new dT.position(j + 2, i);//right 2
+				
+				var pos3 = new dT.position(j, i - 1);//up
+				var pos4 = new dT.position(j, i - 2);//up 2
+				
+				var pos5 = new dT.position(j - 1, i);//left
+				var pos6 = new dT.position(j - 2, i);//left 2
+				
+				var pos7 = new dT.position(j, i + 1);//down
+				var pos8 = new dT.position(j, i + 2);//down 2
+				if(this.isSquare(pos)){
+					if(this.isPeg(pos)){
+						if(this.isSquare(pos1)){if(this.isPeg(pos1)){if(this.isSquare(pos2)){if(!this.isPeg(pos2)){moves.push(new dT.move(pos, pos2));}}}}
+						if(this.isSquare(pos3)){if(this.isPeg(pos3)){if(this.isSquare(pos4)){if(!this.isPeg(pos4)){moves.push(new dT.move(pos, pos4));}}}}
+						if(this.isSquare(pos5)){if(this.isPeg(pos5)){if(this.isSquare(pos6)){if(!this.isPeg(pos6)){moves.push(new dT.move(pos, pos6));}}}}
+						if(this.isSquare(pos7)){if(this.isPeg(pos7)){if(this.isSquare(pos8)){if(!this.isPeg(pos8)){moves.push(new dT.move(pos, pos8));}}}}
+					}
+				}
+			}
+		}
+		return moves;
+	}
+	
+	boardsOfPlayableMoves(){
+		var boards = [];
+		var moves = this.playableMoves();
+		for(var i = 0; i < moves.length; i++){
+				var g = gameInitialization;
+				var d = g.boardDefaultValues;
+				var board = new g.prototype.entityBoard();
+				board.copyThis(this);
+				board.playMove(moves[i]);
+				boards.push(board);
+		}
+		return boards;
+	}
+	
+	//this.reSize();
+};//**gameInitialization.entityBoard**
+//console.log("board ENDED");

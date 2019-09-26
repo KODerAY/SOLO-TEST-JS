@@ -1,0 +1,104 @@
+//console.log("choices LOADED");
+gameInitialization.prototype.entityChoices = class extends gameInitialization.prototype.entity{
+	constructor(x, y, width, height, color, board){
+		super();
+		this.defaultParameters();
+		this.setParameters(x, y, width, height, color, null, null, null, null, board);
+		this.constantParameters();
+	}
+	
+	copyThis(that){
+		super.copyThis(that);
+		this.setParameters(that.x, that.y, that.size, that.color, that.type, that.depth, that.selected, that.moveSelect, that.board);
+	}
+	
+	defaultParameters(){
+		var d = gameInitialization.choicesDefaultValues;
+		this.setParameters(d.x, d.y, d.width, d.height, d.backgroundColor, d.type, d.depth, d.selected, d.moveSelect, d.board);
+	}
+	
+	setParameters(x, y, width, height, color, type, depth, selected, moveSelect, board){
+		super.setParameters(x, y, width, height, color, type, depth);
+		if(selected !=null){
+			this.selected = selected;
+		}
+		if(board != null){
+			this.board = board;
+		}
+		if(moveSelect != null){
+			this.moveSelect = moveSelect;
+		}
+	}
+	
+	constantParameters(){}
+	
+	draw(){
+		super.draw();
+		var g = gameInitialization;
+		var ctx = g.context;
+		var choices = this.board.playableMoves();
+		var countOfChoices = choices.length;
+		var choiceH = this.height / countOfChoices;
+		var d = gameInitialization.choicesDefaultValues;
+		for(var i = 0; i < countOfChoices; i++){
+			if(i == this.selected){
+				ctx.fillStyle = d.selectedColor;
+			}else if(i == this.moveSelect){
+				ctx.fillStyle = d.moveColor;
+			}else{
+				ctx.fillStyle = d.unselectedColor;
+			}
+			ctx.fillRect(this.x, this.y + i * choiceH, this.width, choiceH);
+		}
+		if(choices.length > 0){
+			var pos1 = choices[this.selected].pos1;
+			var pos2 = choices[this.selected].pos2;
+			ctx.beginPath();
+			ctx.strokeStyle = d.arrowColor;
+			var square1 = this.board.getSquare(pos1);
+			var square2 = this.board.getSquare(pos2);
+			var pos1x = square1.x + square1.width / 2;
+			var pos1y = square1.y + square1.height / 2;
+			var pos2x = square2.x + square2.width / 2;
+			var pos2y = square2.y + square2.height / 2;
+			ctx.moveTo(pos1x, pos1y);
+			ctx.lineTo(pos2x, pos2y);
+			ctx.stroke();
+		}
+	}
+	
+	keyDown(e){
+		if(e.key == " "){
+			var array = this.board.playableMoves();
+			if(array.length > 0){
+				this.board.playMove(array[this.selected]);
+				this.selected = 0;
+			}
+		}
+	}
+	
+	mouseClick(e){
+		var mouse = game.getMouse(e);
+		if(gameBasicAlgorithm.collisionMouse(mouse, this)){
+			var countOfChoices = this.board.playableMoves().length;
+			var choiceH = this.height / countOfChoices;
+			this.selected = Math.floor((mouse.y - this.y) / choiceH);
+		}
+	}
+	
+	mouseMove(e){
+		var mouse = game.getMouse(e);
+		if(gameBasicAlgorithm.collisionMouse(mouse, this)){
+			var countOfChoices = this.board.playableMoves().length;
+			var choiceH = this.height / countOfChoices;
+			this.moveSelect = Math.floor((mouse.y - this.y) / choiceH);
+		}else{
+			this.mouseOut();
+		}
+	}
+	
+	mouseOut(){
+		this.moveSelect = -1;
+	}
+}
+//console.log("choices ENDED");
